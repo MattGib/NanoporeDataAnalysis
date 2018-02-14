@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-#import PandasDataFrameGUI.dfgui as dfgui
 from nanoporedata import NanoporeData
 import matplotlib.pyplot as plt
 import collections
@@ -82,4 +81,3 @@ nd.plot_XY('Final_Pore_Size','L',R_groups.keys(),how =['first','median'],scale='
 #nd.plot_hist('L', ('Delay -200mV','No Delay -200mV'),bins=12, log=True, freq=True, histtype='step', linewidth=2)
 
 
-#dfgui.show(nd.data['PSD']['ML004'])
