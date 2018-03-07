@@ -95,13 +95,29 @@ class NanoporeData:
                             print(chip + ' Not in ' + additionalParm)
                 except:
                     print("Could not read Additionnal Parameter file: " + additionalParm)
-            
+ 
+        files = getfilelist(DataPath,'PSD_Params_*.csv', include, exclude)
+        if not files:
+            print('No PSD Parameter file found in: ' + DataPath)
+        else:
+            self.data['PSD_Params'] = {}
+            for filepath in files:
+                chip = getchipID(filepath)
+                print('Loading ' + ntpath.basename(filepath) + " ...")
+                df = pd.read_csv(filepath,index_col=0)
+                if not df.empty:
+                    self.data['PSD_Params'][chip] = df
+           
             self.exclude_chips()
             
             self.fab_stats_calculations()
+#            self.merge_PSD_Params()
             self.merge_PSD_IV()
             self.merge_fab_stats_data()
-        
+  
+
+
+      
     
     def fab_stats_calculations(self):
         for chip, fab_data in self.data['fab_stats'].items():
@@ -175,8 +191,15 @@ class NanoporeData:
             self.units['PSD_IV'][key+'_IV'] = self.units['PSD_IV'][key][1]
         self.units['PSD_IV'] = self.units['PSD_IV'].groupby(self.units['PSD_IV'].index).first()
 
-    
-
+    def merge_PSD_Params(self):
+        
+        for chip in self.data['PSD_Params']:
+            self.data['PSD'][chip]['File_Name'] = os.path.splitext(ntpath.basename(self.data['PSD'][chip]['File_Path']))[0]
+            df = pd.merge(self.data['PSD'][chip], self.data['PSD_Params'][chip], left_on ='File_Name' , right_index=True)    
+            if not df.empty:
+                self.data['PSD'][chip] = df
+        
+                    
     def make_chip_groups(self,group_by,dataset, name_in_label = True):
         groups = {}
         for chip, fab_data in self.data['fab_stats'].items(): 
@@ -405,7 +428,7 @@ class NanoporeData:
         plt.show()    
     
     def plot_XY(self,X,Y,data_sets, how='all', labels='', scale='linear', grid=True,
-                xlim='', ylim=''):
+                xlim='', ylim='', colors=''):
 
         if not isinstance(how, (list, tuple)):
             how = [how,how]
@@ -413,10 +436,13 @@ class NanoporeData:
             data_sets = [data_sets]
         if labels == '':
             labels = data_sets 
+        if colors == '':
+            colors = ['b','g','r','c','m','k','darkseagreen','pink','darkslategrey']
+            
         markers = ('.','d','*','p','o','<','H','P','X')    
         fig, ax = plt.subplots()
         
-        for data_name, label, marker in zip(data_sets,labels,markers):
+        for data_name, label, marker, color in zip(data_sets,labels,markers,colors):
             X_data = np.array([])
             Y_data = np.array([])
             for chip, data in self.data[data_name].items():
@@ -443,7 +469,8 @@ class NanoporeData:
                     elif how[1] == 'median':
                         Y_data = np.append(Y_data, np.median(data[Y].values))
                         
-            ax.plot(X_data, Y_data, label = label,marker=marker,linestyle='none')
+            ax.plot(X_data, Y_data, label = label,marker=marker,linestyle='none',
+                    color=color)
         if not ylim == '':
             plt.ylim(ylim)   
         if not xlim == '':
@@ -578,7 +605,7 @@ def getfilelist(path, searchString, include, exclude):
     return results
 
 def getchipID(path):
-    filenamestrings = ntpath.basename(path).split('_')
+    filenamestrings = os.path.splitext(ntpath.basename(path))[0].split('_')
     return filenamestrings[2]
 
 def setrelativetime(dataframes,fab_stats):
