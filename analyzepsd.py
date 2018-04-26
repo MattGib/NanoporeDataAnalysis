@@ -40,13 +40,13 @@ class AnalyzePSD:
                     params = compute_PSD_params(filepath)
                     chipID = getchipID(filepath)
                     if chipID in self.PSD_params:
-                        self.PSD_params[chipID] = self.PSD_params[chipID].append(pd.DataFrame([params],index=[ntpath.basename(filepath)]))
+                        self.PSD_params[chipID] = self.PSD_params[chipID].append(pd.DataFrame([params],index=[os.path.splitext(ntpath.basename(filepath))[0]]))
                     else:
-                        self.PSD_params[chipID] = pd.DataFrame([params],index=[ntpath.basename(filepath)])
+                        self.PSD_params[chipID] = pd.DataFrame([params],index=[os.path.splitext(ntpath.basename(filepath))[0]])
                 except:
                     print("Warning: Analysis FAILD: " + filepath)
             self.write_params_to_file(outputPath)
-    
+   
     def write_params_to_file(self,outputPath):
         for chipID, data in self.PSD_params.items():
             path = os.path.join(outputPath,'PSD_Params_' + chipID + '.csv')

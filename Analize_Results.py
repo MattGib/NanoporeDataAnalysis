@@ -16,8 +16,9 @@ nd.load_data('C:\\Data\\Result Files',include=include,exclude=exclude,
              additionalParm = 'C:\\Data\\Result Files\\Additional Parameters.csv' )
 
 
+#nd.plot_hist('L',['PSD_IV'],how='first',bins=10,log=False,freq=True,freq_overall=True)
 #create type groups and data sets
-type_groups  = nd.make_chip_groups('Type','fab_stats',name_in_label=True)
+#type_groups  = nd.make_chip_groups('Type','fab_stats',name_in_label=True)
 #
 #
 #nd.filter_data('(0.19<Avg_Voltage<0.21) and (L<=0.003)','PSD', 'Great',how='first')

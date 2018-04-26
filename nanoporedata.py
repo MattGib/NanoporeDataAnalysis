@@ -111,7 +111,7 @@ class NanoporeData:
             self.exclude_chips()
             
             self.fab_stats_calculations()
-#            self.merge_PSD_Params()
+            self.merge_PSD_Params()
             self.merge_PSD_IV()
             self.merge_fab_stats_data()
   
@@ -194,10 +194,11 @@ class NanoporeData:
     def merge_PSD_Params(self):
         
         for chip in self.data['PSD_Params']:
-            self.data['PSD'][chip]['File_Name'] = os.path.splitext(ntpath.basename(self.data['PSD'][chip]['File_Path']))[0]
-            df = pd.merge(self.data['PSD'][chip], self.data['PSD_Params'][chip], left_on ='File_Name' , right_index=True)    
-            if not df.empty:
-                self.data['PSD'][chip] = df
+            if chip in self.data['PSD']:
+                self.data['PSD'][chip]['File_Name'] = self.data['PSD'][chip]['File_Path'].apply(get_filename)
+                df = pd.merge(self.data['PSD'][chip], self.data['PSD_Params'][chip], left_on ='File_Name' , right_index=True)    
+                if not df.empty:
+                    self.data['PSD'][chip] = df
         
                     
     def make_chip_groups(self,group_by,dataset, name_in_label = True):
@@ -640,5 +641,6 @@ def replaceNaN(unitseries):
     unitseries[unitseries == 0] = '' 
 
     
-
+def get_filename(string):
+    return os.path.splitext(ntpath.basename(string))[0] + '.PSD'
 
