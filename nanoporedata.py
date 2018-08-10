@@ -107,13 +107,13 @@ class NanoporeData:
                 df = pd.read_csv(filepath,index_col=0)
                 if not df.empty:
                     self.data['PSD_Params'][chip] = df
-           
-            self.exclude_chips()
-            
-            self.fab_stats_calculations()
             self.merge_PSD_Params()
-            self.merge_PSD_IV()
-            self.merge_fab_stats_data()
+            
+        self.exclude_chips()
+        
+        self.fab_stats_calculations()
+        self.merge_PSD_IV()
+        self.merge_fab_stats_data()
   
 
 
@@ -339,7 +339,7 @@ class NanoporeData:
             if labels == '':
                 labels = data_sets
             if log == True:
-                min_x = min(min(l) for l in hist_data_sets)
+                min_x = min(min(l) for l in hist_data_sets) * 0.9
                 max_x = max(max(l) for l in hist_data_sets)
                 bins= np.logspace(np.log10(min_x),np.log10(max_x),bins)
                 ax.set_xscale("log")
@@ -405,7 +405,7 @@ class NanoporeData:
         if scale == 'logx':
             plt.xscale('log')
         elif scale == 'logy':
-            bins= (bins , np.logspace(np.log10(min(Y_data)),np.log10(max(Y_data)),bins))
+            bins= (bins , np.logspace(np.log10(min(Y_data)*0.9),np.log10(max(Y_data)),bins))
             plt.yscale("log")
         elif scale == 'loglog':
             plt.xscale('log')
